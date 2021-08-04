@@ -103,6 +103,10 @@ add_executable(rtk_heading src/rtk_heading_node.cpp)
 target_link_libraries(rtk_heading ${catkin_LIBRARIES})
 add_dependencies(rtk_heading ${catkin_EXPORTED_TARGETS})
 
+add_executable(slip_coefficient src/slip_coefficient_node.cpp)
+target_link_libraries(slip_coefficient ${catkin_LIBRARIES})
+add_dependencies(slip_coefficient ${catkin_EXPORTED_TARGETS})
+
 install(TARGETS
   velocity_scale_factor
   yawrate_offset_stop
@@ -121,6 +125,7 @@ install(TARGETS
   correction_imu
   rtk_interpolate
   rtk_heading
+  slip_coefficient
   DESTINATION lib/${PROJECT_NAME}
 )
 
