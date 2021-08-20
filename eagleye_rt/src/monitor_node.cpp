@@ -323,7 +323,7 @@ void velocity_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   std::string msg = "OK";
 
   if (velocity_time_last == velocity.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::WARN;
+    level = diagnostic_msgs::DiagnosticStatus::STALE;
     msg = "not subscribed to topic";
   }
 
@@ -336,7 +336,7 @@ void velocity_scale_factor_topic_checker(diagnostic_updater::DiagnosticStatusWra
   std::string msg = "OK";
 
   if (velocity_scale_factor_time_last == velocity_scale_factor.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(velocity_scale_factor.scale_factor)) {
@@ -357,7 +357,7 @@ void distance_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   std::string msg = "OK";
 
   if (distance_time_last == distance.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(distance.distance)) {
@@ -399,7 +399,7 @@ void heading_interpolate_1st_topic_checker(diagnostic_updater::DiagnosticStatusW
   std::string msg = "OK";
 
   if (heading_interpolate_1st_time_last == heading_interpolate_1st.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(heading_interpolate_1st.heading_angle)) {
@@ -441,7 +441,7 @@ void heading_interpolate_2nd_topic_checker(diagnostic_updater::DiagnosticStatusW
   std::string msg = "OK";
 
   if (heading_interpolate_2nd_time_last == heading_interpolate_2nd.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(heading_interpolate_2nd.heading_angle)) {
@@ -483,7 +483,7 @@ void heading_interpolate_3rd_topic_checker(diagnostic_updater::DiagnosticStatusW
   std::string msg = "OK";
 
   if (heading_interpolate_3rd_time_last == heading_interpolate_3rd.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(heading_interpolate_3rd.heading_angle)) {
@@ -504,7 +504,7 @@ void yawrate_offset_stop_topic_checker(diagnostic_updater::DiagnosticStatusWrapp
   std::string msg = "OK";
 
   if (yawrate_offset_stop_time_last == yawrate_offset_stop.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(yawrate_offset_stop.yawrate_offset)) {
@@ -525,7 +525,7 @@ void yawrate_offset_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrappe
   std::string msg = "OK";
 
   if (yawrate_offset_1st_time_last == yawrate_offset_1st.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(yawrate_offset_1st.yawrate_offset)) {
@@ -546,7 +546,7 @@ void yawrate_offset_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrappe
   std::string msg = "OK";
 
   if (yawrate_offset_2nd_time_last == yawrate_offset_2nd.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(yawrate_offset_2nd.yawrate_offset)) {
@@ -567,7 +567,7 @@ void slip_angle_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat
   std::string msg = "OK";
 
   if (slip_angle_time_last == slip_angle.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(slip_angle.slip_angle)) {
@@ -591,7 +591,7 @@ void enu_vel_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
   std::string msg = "OK";
 
- if (!std::isfinite(enu_vel.vector.x)&&!std::isfinite(enu_vel.vector.y)&&!std::isfinite(enu_vel.vector.z)) {
+ if (!std::isfinite(enu_vel.vector.x)||!std::isfinite(enu_vel.vector.y)||!std::isfinite(enu_vel.vector.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
     msg = "invalid number";
   }
@@ -609,7 +609,7 @@ void height_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   std::string msg = "OK";
 
   if (height_time_last == height.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(height.height)) {
@@ -630,7 +630,7 @@ void pitching_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   std::string msg = "OK";
 
   if (pitching_time_last == pitching.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
   else if (!std::isfinite(pitching.pitching_angle)) {
@@ -650,7 +650,7 @@ void enu_absolute_pos_topic_checker(diagnostic_updater::DiagnosticStatusWrapper 
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
   std::string msg = "OK";
 
-  if (!std::isfinite(enu_absolute_pos.enu_pos.x)&&!std::isfinite(enu_absolute_pos.enu_pos.y)&&!std::isfinite(enu_absolute_pos.enu_pos.z)) {
+  if (!std::isfinite(enu_absolute_pos.enu_pos.x)||!std::isfinite(enu_absolute_pos.enu_pos.y)||!std::isfinite(enu_absolute_pos.enu_pos.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
     msg = "invalid number";
   }
@@ -671,7 +671,7 @@ void enu_absolute_pos_interpolate_topic_checker(diagnostic_updater::DiagnosticSt
 int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
   std::string msg = "OK";
 
-  if (!std::isfinite(enu_absolute_pos_interpolate.enu_pos.x)&&!std::isfinite(enu_absolute_pos_interpolate.enu_pos.y)&&!std::isfinite(enu_absolute_pos_interpolate.enu_pos.z)) {
+  if (!std::isfinite(enu_absolute_pos_interpolate.enu_pos.x)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.y)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
     msg = "invalid number";
   }
@@ -693,11 +693,11 @@ void twist_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
   std::string msg = "OK";
 
   if (eagleye_twist_time_last == eagleye_twist.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::STALE;
+    level = diagnostic_msgs::DiagnosticStatus::WARN;
     msg = "not subscribed to topic";
   }
-  else if (!std::isfinite(eagleye_twist.twist.linear.x)&&!std::isfinite(eagleye_twist.twist.linear.y)&&!std::isfinite(eagleye_twist.twist.linear.z)
-      &&!std::isfinite(eagleye_twist.twist.angular.x)&&!std::isfinite(eagleye_twist.twist.angular.y)&&!std::isfinite(eagleye_twist.twist.angular.z)) {
+  else if (!std::isfinite(eagleye_twist.twist.linear.x)||!std::isfinite(eagleye_twist.twist.linear.y)||!std::isfinite(eagleye_twist.twist.linear.z)
+      ||!std::isfinite(eagleye_twist.twist.angular.x)||!std::isfinite(eagleye_twist.twist.angular.y)||!std::isfinite(eagleye_twist.twist.angular.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
     msg = "invalid number";
   }
