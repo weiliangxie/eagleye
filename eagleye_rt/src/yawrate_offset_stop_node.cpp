@@ -57,6 +57,14 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   imu.linear_acceleration_covariance = msg->linear_acceleration_covariance;
   yawrate_offset_stop.header = msg->header;
   yawrate_offset_stop_estimate(velocity, imu, yawrate_offset_stop_parameter, &yawrate_offset_stop_status, &yawrate_offset_stop);
+  
+  if (!std::isfinite(yawrate_offset_stop.yawrate_offset)) 
+  {
+    yawrate_offset_stop.yawrate_offset = 0;
+    yawrate_offset_stop.status.enabled_status = false;
+    yawrate_offset_stop.status.estimate_status = false;
+  }
+
   pub.publish(yawrate_offset_stop);
 }
 

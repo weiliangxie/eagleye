@@ -48,7 +48,12 @@ void velocity_scale_factor_callback(const eagleye_msgs::VelocityScaleFactor::Con
   velocity_scale_factor.status = msg->status;
   distance_estimate(velocity_scale_factor,&distance_status,&distance);
 
-  if(distance_status.time_last != 0)
+  if (!std::isfinite(distance.distance)) 
+  {
+    distance.status.enabled_status = false;
+    distance.status.estimate_status = false;
+  }
+  else if(distance_status.time_last != 0)
   {
     pub.publish(distance);
   }

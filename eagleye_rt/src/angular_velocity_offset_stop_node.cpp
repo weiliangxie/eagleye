@@ -57,6 +57,18 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   imu.linear_acceleration_covariance = msg->linear_acceleration_covariance;
   angular_velocity_offset_stop.header = msg->header;
   angular_velocity_offset_stop_estimate(velocity, imu, angular_velocity_offset_stop_parameter, &angular_velocity_offset_stop_status, &angular_velocity_offset_stop);
+  
+  if (!std::isfinite(angular_velocity_offset_stop.angular_velocity_offset.x)
+      ||!std::isfinite(angular_velocity_offset_stop.angular_velocity_offset.y)
+      ||!std::isfinite(angular_velocity_offset_stop.angular_velocity_offset.z))
+  {
+    angular_velocity_offset_stop.angular_velocity_offset.x = 0;
+    angular_velocity_offset_stop.angular_velocity_offset.y = 0;
+    angular_velocity_offset_stop.angular_velocity_offset.z = 0;
+    angular_velocity_offset_stop.status.estimate_status = false;
+    angular_velocity_offset_stop.status.enabled_status = false;
+  }
+  
   pub.publish(angular_velocity_offset_stop);
 }
 

@@ -105,7 +105,12 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   heading.header.frame_id = "base_link";
   heading_estimate(rtklib_nav,imu,velocity_scale_factor,yawrate_offset_stop,yawrate_offset,slip_angle,heading_interpolate,heading_parameter,&heading_status,&heading);
 
-  if (heading.status.estimate_status == true)
+  if (!std::isfinite(heading.heading_angle)) 
+  {
+    heading.status.enabled_status = false;
+    heading.status.estimate_status = false;
+  }
+  else if (heading.status.estimate_status == true)
   {
     pub.publish(heading);
   }

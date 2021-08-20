@@ -81,7 +81,13 @@ void enu_vel_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
   enu_absolute_pos.header = msg->header;
   enu_absolute_pos.header.frame_id = "base_link";
   position_estimate(rtklib_nav, velocity_scale_factor, distance, heading_interpolate_3rd, enu_vel, position_parameter, &position_status, &enu_absolute_pos);
-  if(enu_absolute_pos.status.estimate_status == true)
+
+  if (!std::isfinite(enu_absolute_pos.enu_pos.x)||!std::isfinite(enu_absolute_pos.enu_pos.y)||!std::isfinite(enu_absolute_pos.enu_pos.z)) 
+  {
+    enu_absolute_pos.status.enabled_status = false;
+    enu_absolute_pos.status.estimate_status = false;
+  }
+  else if(enu_absolute_pos.status.estimate_status == true)
   {
     pub.publish(enu_absolute_pos);
   }

@@ -88,10 +88,25 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   acc_x_offset.header = msg->header;
   acc_x_scale_factor.header = msg->header;
   pitching_estimate(imu,fix,velocity_scale_factor,distance,height_parameter,&height_status,&height,&pitching,&acc_x_offset,&acc_x_scale_factor);
-  pub1.publish(height);
-  pub2.publish(pitching);
-  pub3.publish(acc_x_offset);
-  pub4.publish(acc_x_scale_factor);
+
+  if (!std::isfinite(height.height)
+      ||!std::isfinite(pitching.pitching_angle)) 
+  {
+    height.height = fix.altitude;
+    pitching.pitching_angle = 0;
+    height_status.flag_reliability = false;
+    height.status.enabled_status = height.status.estimate_status = false;
+    pitching.status.enabled_status = pitching.status.estimate_status = false;
+    acc_x_offset.status.enabled_status = acc_x_offset.status.estimate_status = false;
+    acc_x_scale_factor.status.enabled_status = acc_x_scale_factor.status.estimate_status = false;
+  }
+  else 
+  {
+    pub1.publish(height);
+    pub2.publish(pitching);
+    pub3.publish(acc_x_offset);
+    pub4.publish(acc_x_scale_factor);
+  }
 
   if(height_status.flag_reliability == true)
   {

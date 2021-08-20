@@ -94,7 +94,16 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   heading_interpolate.header = msg->header;
   heading_interpolate.header.frame_id = "base_link";
   heading_interpolate_estimate(imu,velocity_scale_factor,yawrate_offset_stop,yawrate_offset,heading,slip_angle,heading_interpolate_parameter,&heading_interpolate_status,&heading_interpolate);
-  pub.publish(heading_interpolate);
+  
+  if (!std::isfinite(heading_interpolate.heading_angle)) 
+  {
+    heading_interpolate.status.enabled_status = false;
+    heading_interpolate.status.estimate_status = false;
+  }
+  else
+  {
+    pub.publish(heading_interpolate);
+  }  
 }
 
 int main(int argc, char** argv)

@@ -71,6 +71,15 @@ void imu_callback(const sensor_msgs::Imu::ConstPtr& msg)
   velocity_scale_factor.header = msg->header;
   velocity_scale_factor.header.frame_id = "base_link";
   velocity_scale_factor_estimate(rtklib_nav,velocity,velocity_scale_factor_parameter,&velocity_scale_factor_status,&velocity_scale_factor);
+
+  if (!std::isfinite(velocity_scale_factor.scale_factor)) 
+  {
+    velocity_scale_factor.scale_factor = 1;
+    velocity_scale_factor.correction_velocity.linear.x = velocity.twist.linear.x;    
+    velocity_scale_factor.status.enabled_status = false;
+    velocity_scale_factor.status.estimate_status = false;
+  }
+
   pub.publish(velocity_scale_factor);
 }
 

@@ -63,7 +63,13 @@ void enu_vel_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
   eagleye_fix.header = msg->header;
   eagleye_fix.header.frame_id = "gnss";
   rtk_interpolate_estimate(enu_vel,fix,rtk_interpolate_parameter,&rtk_interpolate_status,&enu_absolute_rtk_interpolate,&eagleye_fix);
-  if(enu_absolute_rtk_interpolate.status.enabled_status == true)
+
+  if (!std::isfinite(enu_absolute_rtk_interpolate.enu_pos.x)||!std::isfinite(enu_absolute_rtk_interpolate.enu_pos.y)||!std::isfinite(enu_absolute_rtk_interpolate.enu_pos.z)) 
+  {
+    enu_absolute_rtk_interpolate.status.enabled_status = false;
+    enu_absolute_rtk_interpolate.status.estimate_status = false;
+  }
+  else if(enu_absolute_rtk_interpolate.status.enabled_status == true)
   {
     pub1.publish(enu_absolute_rtk_interpolate);
     pub2.publish(eagleye_fix);

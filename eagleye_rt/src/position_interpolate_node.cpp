@@ -90,7 +90,13 @@ void enu_vel_callback(const geometry_msgs::Vector3Stamped::ConstPtr& msg)
   eagleye_fix.header = msg->header;
   eagleye_fix.header.frame_id = "gnss";
   position_interpolate_estimate(enu_absolute_pos,enu_vel,gnss_smooth_pos,height,position_interpolate_parameter,&position_interpolate_status,&enu_absolute_pos_interpolate,&eagleye_fix);
-  if(enu_absolute_pos.status.enabled_status == true)
+  
+  if (!std::isfinite(enu_absolute_pos_interpolate.enu_pos.x)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.y)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.z)) 
+  {
+    enu_absolute_pos_interpolate.status.enabled_status = false;
+    enu_absolute_pos_interpolate.status.estimate_status = false;
+  }
+  else if(enu_absolute_pos.status.enabled_status == true)
   {
     pub1.publish(enu_absolute_pos_interpolate);
     pub2.publish(eagleye_fix);
