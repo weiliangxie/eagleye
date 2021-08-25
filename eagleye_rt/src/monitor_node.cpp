@@ -278,431 +278,637 @@ void eagleye_twist_callback(const geometry_msgs::TwistStamped::ConstPtr& msg)
   eagleye_twist.twist = msg->twist;
 }
 
-void imu_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t imu_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (imu_time_last == imu.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::STALE;
-    msg = "not subscribed to topic";
+    stat.add("imu status", "STALE");
+    stat.add("imu status", "not subscribed to topic");
+  }
+  else
+  {
+    stat.add("imu status", "OK");
   }
 
   imu_time_last = imu.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void rtklib_nav_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t rtklib_nav_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (rtklib_nav_time_last - rtklib_nav.header.stamp.toSec() > th_gnss_deadrock_time) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed or deadlock of more than 10 seconds";
+    stat.add("rtklib_nav status", "WARN");
+    stat.add("rtklib_nav status", "not subscribed or deadlock of more than 10 seconds");
+  }
+  else
+  {
+    stat.add("rtklib_nav status", "OK");
   }
 
   rtklib_nav_time_last = rtklib_nav.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void navsat_fix_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t navsat_fix_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (navsat_fix_time_last - navsat_fix.header.stamp.toSec() > th_gnss_deadrock_time || !navsat_fix_sub_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("navsat_fix status", "WARN");
+    stat.add("navsat_fix status", "not subscribed to topic");
+  }
+  else
+  {
+    stat.add("navsat_fix status", "OK");
   }
 
   navsat_fix_time_last = navsat_fix.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void velocity_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t velocity_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (velocity_time_last == velocity.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::STALE;
-    msg = "not subscribed to topic";
+    stat.add("velocity status", "STALE");
+    stat.add("velocity status", "not subscribed to topic");
+  }
+  else
+  {
+    stat.add("velocity status", "OK");
   }
 
   velocity_time_last = velocity.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void velocity_scale_factor_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t velocity_scale_factor_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (velocity_scale_factor_time_last == velocity_scale_factor.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("velocity_scale_factor status", "WARN");
+    stat.add("velocity_scale_factor status", "not subscribed to topic");
   }
   else if (!std::isfinite(velocity_scale_factor.scale_factor)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("velocity_scale_factor status", "ERROR");
+    stat.add("velocity_scale_factor status", "invalid number");
   }
   else if (!velocity_scale_factor.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("velocity_scale_factor status", "WARN");
+    stat.add("velocity_scale_factor status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("velocity_scale_factor status", "OK");
   }
 
   velocity_scale_factor_time_last = velocity_scale_factor.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void distance_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t distance_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (distance_time_last == distance.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("distance status", "WARN");
+    stat.add("distance status", "not subscribed to topic");
   }
   else if (!std::isfinite(distance.distance)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("distance status", "ERROR");
+    stat.add("distance status", "invalid number");
   }
   else if (!distance.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("distance status", "WARN");
+    stat.add("distance status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("distance status", "OK");
   }
 
   distance_time_last = distance.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (!std::isfinite(heading_1st.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_1st status", "ERROR");
+    stat.add("heading_1st status", "invalid number");
   }
   else if (heading_1st_time_last - heading_1st.header.stamp.toSec() > th_gnss_deadrock_time) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed or deadlock of more than 10 seconds";
+    stat.add("heading_1st status", "WARN");
+    stat.add("heading_1st status", "not subscribed or deadlock of more than 10 seconds");
   }
   else if (!heading_1st.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_1st status", "WARN");
+    stat.add("heading_1st status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_1st status", "OK");
   }
 
+
   heading_1st_time_last = heading_1st.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_interpolate_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_interpolate_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (heading_interpolate_1st_time_last == heading_interpolate_1st.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("heading_interpolate_1st status", "WARN");
+    stat.add("heading_interpolate_1st status", "not subscribed to topic");
   }
   else if (!std::isfinite(heading_interpolate_1st.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_interpolate_1st status", "ERROR");
+    stat.add("heading_interpolate_1st status", "invalid number");;
   }
   else if (!heading_interpolate_1st.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_interpolate_1st status", "WARN");
+    stat.add("heading_interpolate_1st status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_interpolate_1st status", "OK");
   }
 
   heading_interpolate_1st_time_last = heading_interpolate_1st.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (!std::isfinite(heading_2nd.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_2nd status", "ERROR");
+    stat.add("heading_2nd status", "invalid number");
   }
   else if (heading_2nd_time_last - heading_2nd.header.stamp.toSec() > th_gnss_deadrock_time) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed or deadlock of more than 10 seconds";
+    stat.add("heading_2nd status", "WARN");
+    stat.add("heading_2nd status", "not subscribed or deadlock of more than 10 seconds");
   }
   else if (!heading_2nd.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_2nd status", "WARN");
+    stat.add("heading_2nd status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_2nd status", "OK");
   }
 
   heading_2nd_time_last = heading_2nd.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_interpolate_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_interpolate_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (heading_interpolate_2nd_time_last == heading_interpolate_2nd.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("heading_interpolate_2nd status", "WARN");
+    stat.add("heading_interpolate_2nd status", "not subscribed to topic");
   }
   else if (!std::isfinite(heading_interpolate_2nd.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_interpolate_2nd status", "ERROR");
+    stat.add("heading_interpolate_2nd status", "invalid number");;
   }
   else if (!heading_interpolate_2nd.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_interpolate_2nd status", "WARN");
+    stat.add("heading_interpolate_2nd status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_interpolate_2nd status", "OK");
   }
 
   heading_interpolate_2nd_time_last = heading_interpolate_2nd.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_3rd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_3rd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (!std::isfinite(heading_3rd.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_3rd status", "ERROR");
+    stat.add("heading_3rd status", "invalid number");
   }
   else if (heading_3rd_time_last - heading_3rd.header.stamp.toSec() > th_gnss_deadrock_time) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed or deadlock of more than 10 seconds";
+    stat.add("heading_3rd status", "WARN");
+    stat.add("heading_3rd status", "not subscribed or deadlock of more than 10 seconds");
   }
   else if (!heading_3rd.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_3rd status", "WARN");
+    stat.add("heading_3rd status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_3rd status", "OK");
   }
 
   heading_3rd_time_last = heading_3rd.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void heading_interpolate_3rd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t heading_interpolate_3rd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (heading_interpolate_3rd_time_last == heading_interpolate_3rd.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("heading_interpolate_3rd status", "WARN");
+    stat.add("heading_interpolate_3rd status", "not subscribed to topic");
   }
   else if (!std::isfinite(heading_interpolate_3rd.heading_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("heading_interpolate_3rd status", "ERROR");
+    stat.add("heading_interpolate_3rd status", "invalid number");;
   }
   else if (!heading_interpolate_3rd.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("heading_interpolate_3rd status", "WARN");
+    stat.add("heading_interpolate_3rd status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("heading_interpolate_3rd status", "OK");
   }
 
   heading_interpolate_3rd_time_last = heading_interpolate_3rd.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void yawrate_offset_stop_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t yawrate_offset_stop_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (yawrate_offset_stop_time_last == yawrate_offset_stop.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("yawrate_offset_stop status", "WARN");
+    stat.add("yawrate_offset_stop status", "not subscribed to topic");
   }
   else if (!std::isfinite(yawrate_offset_stop.yawrate_offset)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("yawrate_offset_stop status", "ERROR");
+    stat.add("yawrate_offset_stop status", "invalid number");;
   }
   else if (!yawrate_offset_stop.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("yawrate_offset_stop status", "WARN");
+    stat.add("yawrate_offset_stop status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("yawrate_offset_stop status", "OK");
   }
 
   yawrate_offset_stop_time_last = yawrate_offset_stop.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void yawrate_offset_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t yawrate_offset_1st_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (yawrate_offset_1st_time_last == yawrate_offset_1st.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("yawrate_offset_1st status", "WARN");
+    stat.add("yawrate_offset_1st status", "not subscribed to topic");
   }
   else if (!std::isfinite(yawrate_offset_1st.yawrate_offset)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("yawrate_offset_1st status", "ERROR");
+    stat.add("yawrate_offset_1st status", "invalid number");;
   }
   else if (!yawrate_offset_1st.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("yawrate_offset_1st status", "WARN");
+    stat.add("yawrate_offset_1st status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("yawrate_offset_1st status", "OK");
   }
 
   yawrate_offset_1st_time_last = yawrate_offset_1st.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void yawrate_offset_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t yawrate_offset_2nd_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (yawrate_offset_2nd_time_last == yawrate_offset_2nd.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("yawrate_offset_2nd status", "WARN");
+    stat.add("yawrate_offset_2nd status", "not subscribed to topic");
   }
   else if (!std::isfinite(yawrate_offset_2nd.yawrate_offset)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("yawrate_offset_2nd status", "ERROR");
+    stat.add("yawrate_offset_2nd status", "invalid number");;
   }
   else if (!yawrate_offset_2nd.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("yawrate_offset_2nd status", "WARN");
+    stat.add("yawrate_offset_2nd status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("yawrate_offset_2nd status", "OK");
   }
 
   yawrate_offset_2nd_time_last = yawrate_offset_2nd.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void slip_angle_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t slip_angle_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (slip_angle_time_last == slip_angle.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("slip_angle status", "WARN");
+    stat.add("slip_angle status", "not subscribed to topic");
   }
   else if (!std::isfinite(slip_angle.slip_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("slip_angle status", "ERROR");
+    stat.add("slip_angle status", "invalid number");;
   }
   else if (slip_angle.coefficient == 0) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "/slip_angle/manual_coefficient is not set";
+    stat.add("slip_angle status", "WARN");
+    stat.add("slip_angle status", "/slip_angle/manual_coefficient is not set");
+
   }
   else if (!slip_angle.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("slip_angle status", "WARN");
+    stat.add("slip_angle status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("slip_angle status", "OK");
   }
 
   slip_angle_time_last = slip_angle.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void enu_vel_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t enu_vel_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
  if (!std::isfinite(enu_vel.vector.x)||!std::isfinite(enu_vel.vector.y)||!std::isfinite(enu_vel.vector.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("enu_vel status", "ERROR");
+    stat.add("enu_vel status", "invalid number");;
   }
   else  if (enu_vel_time_last == enu_vel.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("enu_vel status", "WARN");
+    stat.add("enu_vel status", "not subscribed to topic");
+  }
+  else
+  {
+    stat.add("enu_vel status", "OK");
   }
 
   enu_vel_time_last = enu_vel.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void height_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t height_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (height_time_last == height.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("height status", "WARN");
+    stat.add("height status", "not subscribed to topic");
   }
   else if (!std::isfinite(height.height)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("height status", "ERROR");
+    stat.add("height status", "invalid number");;
   }
   else if (!height.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("height status", "WARN");
+    stat.add("height status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("height status", "OK");
   }
 
   height_time_last = height.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void pitching_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t pitching_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (pitching_time_last == pitching.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("pitching status", "WARN");
+    stat.add("pitching status", "not subscribed to topic");
   }
   else if (!std::isfinite(pitching.pitching_angle)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("pitching status", "ERROR");
+    stat.add("pitching status", "invalid number");;
   }
   else if (!pitching.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("pitching status", "WARN");
+    stat.add("pitching status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("pitching status", "OK");
   }
 
   pitching_time_last = pitching.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void enu_absolute_pos_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t enu_absolute_pos_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (!std::isfinite(enu_absolute_pos.enu_pos.x)||!std::isfinite(enu_absolute_pos.enu_pos.y)||!std::isfinite(enu_absolute_pos.enu_pos.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("enu_absolute_pos status", "ERROR");
+    stat.add("enu_absolute_pos status", "invalid number");;
   }
   else if (enu_absolute_pos_time_last - enu_absolute_pos.header.stamp.toSec() > th_gnss_deadrock_time) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed or deadlock of more than 10 seconds";
+    stat.add("enu_absolute_pos status", "WARN");
+    stat.add("enu_absolute_pos status", "not subscribed or deadlock of more than 10 seconds");;
+
   }
   else if (!enu_absolute_pos.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("enu_absolute_pos status", "WARN");
+    stat.add("enu_absolute_pos status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("enu_absolute_pos status", "OK");
   }
 
   enu_absolute_pos_time_last = enu_absolute_pos.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void enu_absolute_pos_interpolate_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t enu_absolute_pos_interpolate_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
+  int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
 
   if (!std::isfinite(enu_absolute_pos_interpolate.enu_pos.x)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.y)||!std::isfinite(enu_absolute_pos_interpolate.enu_pos.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("enu_absolute_pos_interpolate status", "ERROR");
+    stat.add("enu_absolute_pos_interpolate status", "invalid number");;
   }
   else if (enu_absolute_pos_interpolate_time_last == enu_absolute_pos_interpolate.header.stamp.toSec()) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    stat.add("enu_absolute_pos_interpolate status", "WARN");
+    stat.add("enu_absolute_pos_interpolate status", "not subscribed or deadlock of more than 10 seconds");;
   }
   else if (!enu_absolute_pos_interpolate.status.enabled_status) {
     level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "estimates have not started yet";
+    stat.add("enu_absolute_pos_interpolate status", "WARN");
+    stat.add("enu_absolute_pos_interpolate status", "estimates have not started yet");
+  }
+  else
+  {
+    stat.add("enu_absolute_pos_interpolate status", "OK");
   }
 
   enu_absolute_pos_interpolate_time_last = enu_absolute_pos_interpolate.header.stamp.toSec();
-  stat.summary(level, msg);
+  return level;
 }
-void twist_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+uint8_t twist_topic_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
-  std::string msg = "OK";
 
   if (eagleye_twist_time_last == eagleye_twist.header.stamp.toSec()) {
-    level = diagnostic_msgs::DiagnosticStatus::WARN;
-    msg = "not subscribed to topic";
+    level = diagnostic_msgs::DiagnosticStatus::ERROR;
+    stat.add("enu_absolute_pos_interpolate status", "ERROR");
+    stat.add("enu_absolute_pos_interpolate status", "not subscribed or deadlock of more than 10 seconds");;
   }
   else if (!std::isfinite(eagleye_twist.twist.linear.x)||!std::isfinite(eagleye_twist.twist.linear.y)||!std::isfinite(eagleye_twist.twist.linear.z)
       ||!std::isfinite(eagleye_twist.twist.angular.x)||!std::isfinite(eagleye_twist.twist.angular.y)||!std::isfinite(eagleye_twist.twist.angular.z)) {
     level = diagnostic_msgs::DiagnosticStatus::ERROR;
-    msg = "invalid number";
+    stat.add("enu_absolute_pos_interpolate status", "ERROR");
+    stat.add("enu_absolute_pos_interpolate status", "invalid number");;
+  }
+  else
+  {
+    stat.add("enu_absolute_pos_interpolate status", "OK");
   }
 
   eagleye_twist_time_last = eagleye_twist.header.stamp.toSec();
+  return level;
+}
+
+void topic_status_checker(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  int8_t level = diagnostic_msgs::DiagnosticStatus::OK;
+  std::string msg = "OK";
+
+  uint8_t current_level;
+
+  current_level = imu_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = rtklib_nav_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = navsat_fix_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = velocity_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = velocity_scale_factor_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = distance_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = heading_1st_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = heading_interpolate_1st_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = heading_2nd_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+  
+  current_level = heading_interpolate_2nd_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = heading_3rd_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = heading_interpolate_3rd_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = yawrate_offset_stop_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = yawrate_offset_1st_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = yawrate_offset_2nd_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = slip_angle_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = enu_vel_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = height_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = pitching_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = enu_absolute_pos_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = enu_absolute_pos_interpolate_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  current_level = twist_topic_checker(stat);
+  level = (current_level > level) ? current_level: level;
+
+  if (level)
+  {
+    msg = "Problem Found. Check Details.";
+  }
   stat.summary(level, msg);
 }
 
@@ -844,32 +1050,10 @@ int main(int argc, char** argv)
   std::cout<< "subscribe_navsatfix_topic_name "<<subscribe_navsatfix_topic_name<<std::endl;
   std::cout<< "print_status "<<print_status<<std::endl;
 
-
   // // Diagnostic Updater
   diagnostic_updater::Updater updater_;
   updater_.setHardwareID("topic_checker");
-  updater_.add("imu", imu_topic_checker);
-  updater_.add("rtklib_nav", rtklib_nav_topic_checker);
-  updater_.add("navsat_fix", navsat_fix_topic_checker);
-  updater_.add("velocity", velocity_topic_checker);
-  updater_.add("velocity_scale_factor", velocity_scale_factor_topic_checker);
-  updater_.add("distance", distance_topic_checker);
-  updater_.add("heading_1st", heading_1st_topic_checker);
-  updater_.add("heading_interpolate_1st", heading_interpolate_1st_topic_checker);
-  updater_.add("heading_2nd", heading_2nd_topic_checker);
-  updater_.add("heading_interpolate_2nd", heading_interpolate_2nd_topic_checker);
-  updater_.add("heading_3rd", heading_3rd_topic_checker);
-  updater_.add("heading_interpolate_3rd", heading_interpolate_3rd_topic_checker);
-  updater_.add("yawrate_offset_stop", yawrate_offset_stop_topic_checker);
-  updater_.add("yawrate_offset_1st", yawrate_offset_1st_topic_checker);
-  updater_.add("yawrate_offset_2nd", yawrate_offset_2nd_topic_checker);
-  updater_.add("slip_angle", slip_angle_topic_checker);
-  updater_.add("enu_vel", enu_vel_topic_checker);
-  updater_.add("height", height_topic_checker);
-  updater_.add("pitching", pitching_topic_checker);
-  updater_.add("enu_absolute_pos", enu_absolute_pos_topic_checker);
-  updater_.add("enu_absolute_pos_interpolate", enu_absolute_pos_interpolate_topic_checker);
-  updater_.add("twist", twist_topic_checker);
+  updater_.add("topic_status", topic_status_checker);
 
   ros::Subscriber sub1 = n.subscribe(subscribe_imu_topic_name, 1000, imu_callback, ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub2 = n.subscribe(subscribe_rtklib_nav_topic_name, 1000, rtklib_nav_callback, ros::TransportHints().tcpNoDelay());
