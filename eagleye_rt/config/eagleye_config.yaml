@@ -12,6 +12,8 @@ nmea_sentence_topic: /mosaic/nmea_sentence
 localization_pose_topic: /localization/pose # This parameter is used to input external poses such as map matching to eagleye. (Normally it is not used.)
 
 #Parameter settings for Eagleye
+imu:
+ frequency: 50
 
 tf_gnss_frame:
   parent: "base_link"
@@ -23,37 +25,37 @@ ecef_base_pos:                                        #The position in the ecef 
   z : 0.0
   use_ecef_base_position : false
 
-velocity_scale_factor:                                #Parameters for estimating vehicle speed scale factor.
-  estimated_number_min: 1000                           #Minimum number of data used for estimation. (default:1000 = 20s)
-  estimated_number_max: 20000                          #Maximum number of data used for estimation. (default:20000 = 400s)
+velocity_scale_factor:                                 #Parameters for estimating vehicle speed scale factor.
+  estimated_time_min: 20                               #Minimum time of data used for estimation. (default:20s)
+  estimated_time_max: 400                              #Maximum time of data used for estimation. (default:400s)
   estimated_velocity_threshold: 2.78                   #Velocity threshold at which to start estimation. (default:2.78 m/s = 10 km/h)
   estimated_coefficient: 0.025                         #A coefficient for determining the threshold for the number of valid data in the buffer to determine whether to make an estimate. (default:0.025 =2.5%)
-  save_velocity_scale_factor: false                     #If this parameter is set to true, the velocitry_scale_factor saved at the last startup is used as the initial value at startup.
+  save_velocity_scale_factor: false                    #If this parameter is set to true, the velocitry_scale_factor saved at the last startup is used as the initial value at startup.
   velocity_scale_factor_save_duration: 100.0           #[sec]
 
 yawrate_offset_stop:                                  #Parameters related to estimation of yaw rate offset due to temperature drift and noise of IMU during stoppage
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
-  estimated_number: 200                               #Number of data used for estimation. (default:200 = 4s)
+  estimated_time: 4                                   #Time of data used for estimation. (default:4s)
   outlier_threshold: 0.002
 
 angular_velocity_offset_stop:                         #Parameters related to estimation of yaw rate offset due to temperature drift and noise of IMU during stoppage
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
-  estimated_number: 200                               #Number of data used for estimation. (default:200 = 4s)
+  estimated_time: 4                                   #Time of data used for estimation. (default:4s)
   outlier_threshold: 0.002
 
 yawrate_offset:                                       #Parameters related to estimation of yaw rate offset due to temperature drift and noise of IMU while driving
-  estimated_number_min: 1500                          #Minimum number of data used for estimation. (default:1500 = 30s)
+  estimated_time_min: 30                              #Minimum time of data used for estimation. (default:30s)
   estimated_coefficient: 0.01                         #A coefficient for determining the threshold for the number of valid data in the buffer to determine whether to make an estimate. (default:0.01 =10%)
   estimated_velocity_threshold: 2.78                  #Velocity threshold at which to start estimation. (default:2.78 m/s = 10 km/h)
   outlier_threshold: 0.002
   1st:
-    estimated_number_max: 14000                       #Maximum number of data used for estimation. (default:14000 = 280s)
+    estimated_time_max: 280                           #Maximum time of data used for estimation. (default:280s)
   2nd:
-    estimated_number_max: 25000                       #Maximum number of data used for estimation. (default:25000 = 500s)
+    estimated_time_max: 500                           #Maximum time of data used for estimation. (default:500s)
 
 heading:                                              #Parameters for estimating the azimuth of a car
-  estimated_number_min: 500                           #Minimum number of data used for estimation. (default:500 = 10s)
-  estimated_number_max: 1500                          #Maximum number of data used for estimation. (default:1500 = 30s)
+  estimated_time_min: 10                              #Minimum time of data used for estimation. (default:10s)
+  estimated_time_max: 30                              #Maximum time of data used for estimation. (default:30s)
   estimated_gnss_coefficient: 0.025                   #A coefficient for determining the threshold for the number of valid data in the GNSS buffer to determine whether to make an estimate. (default:0.025 = 2.5%)
   estimated_heading_coefficient: 0.0125               #A coefficient for determining the threshold for the number of valid data in the remainder buffer to determine whether to make an estimate. (default:0.0125 = 1.25%)
   outlier_threshold: 0.0524                           #Threshold for ending estimated outlier rejection. (default:0.0524 rad = 3 degree)
@@ -64,8 +66,8 @@ heading:                                              #Parameters for estimating
 rtk_heading:                                          #Parameters for estimating the azimuth of a car
   estimated_distance: 0.3                             #Distance to be used for heading angle estimation.
   estimated_heading_buffer_min: 2                     #Minimum number of RTK fix solutions required for heading angle estimation
-  estimated_number_min: 500                           #Minimum number of data used for estimation. (default:500 = 10s)
-  estimated_number_max: 1500                          #Maximum number of data used for estimation. (default:1500 = 30s)
+  estimated_time_min: 10                              #Minimum time of data used for estimation. (default:10s)
+  estimated_time_max: 30                              #Maximum time of data used for estimation. (default:30s)
   estimated_gnss_coefficient: 0.025                   #A coefficient for determining the threshold for the number of valid data in the GNSS buffer to determine whether to make an estimate. (default:0.025 = 2.5%)
   estimated_heading_coefficient: 0.0125               #A coefficient for determining the threshold for the number of valid data in the remainder buffer to determine whether to make an estimate. (default:0.0125 = 1.25%)
   outlier_threshold: 0.0524                           #Threshold for ending estimated outlier rejection. (default:0.0524 rad = 3 degree)
@@ -75,15 +77,15 @@ rtk_heading:                                          #Parameters for estimating
 
 heading_interpolate:
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
-  number_buffer_max: 100
+  time_buffer_max: 2
 
 slip_angle:
   manual_coefficient: 0.0                             #If you do not want to correct slip angle, set slip angle estimate to false and set the coefficient here to 0
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
 
 slip_coefficient:
-  estimated_number_min: 100                           #Minimum number of data used for estimation. (default:100)
-  estimated_number_max: 5000                          #Maximum number of data used for estimation. (default:5000)
+  estimated_time_min: 2                               #Minimum time of data used for estimation. (default:2)
+  estimated_time_max: 100                             #Maximum time of data used for estimation. (default:100)
   estimated_velocity_threshold: 3                     #Velocity threshold at which to start estimation. (default:2.78 m/s = 10 km/h)
   estimated_yawrate_threshold: 0.017453               #Yaw rate threshold for curve judgment. (default:0.017453 rad/s = 1 degree/s)
   lever_arm: 0.26                                     #Distance from center of rear wheel axle to GNSS antenna. (m)
@@ -103,7 +105,7 @@ position:
   estimated_position_coefficient: 0.25                #A coefficient for determining the threshold for the number of valid data in the remainder buffer to determine whether to make an estimate. (default:0.25 = 25%)
 
 position_interpolate:
-  number_buffer_max: 100
+  number_time_max: 2
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
 
 rtk_deadreckoning:
@@ -122,12 +124,12 @@ height:
   estimated_velocity_coefficient: 0.1                 #A coefficient for determining the threshold for the number of valid data in the GNSS buffer to determine whether to make an estimate. (default:0.1 = 10%)
   estimated_height_coefficient: 0.02                  #A coefficient for determining the threshold for the number of valid data in the remainder buffer to determine whether to make an estimate. (default:0.02 = 2%)
   outlier_threshold: 0.3                              #Threshold for ending estimated outlier rejection. (default:0.3 m)
-  average_num: 50                                     #Moving average parameter of the pitch angle. (default:50 = 1[s])
+  average_time: 1                                     #Moving average parameter of the pitch angle. (default:1[s])
 
 enable_additional_rolling:
   matching_update_distance: 0.3                       #Distance to re-estimate from previous estimate. (default:0.3 m)
   stop_judgment_velocity_threshold: 0.01              #Speed threshold for judgment at stop. (default:0.01 m/s)
-  rolling_buffer_num: 50                              #Number of data to take a moving average of roll angle (default:50 = 1s)
+  rolling_time_num: 1                                 #Number of data to take a moving average of roll angle (default:1s)
   link_Time_stamp_parameter: 0.01                     #Time considered to be in sync for time synchronization. (default:0.01 s)
   imu_buffer_num: 10                                  #Number of IMU data to be stored for time correction. (default:10)
 
