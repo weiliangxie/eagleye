@@ -162,15 +162,19 @@ int main(int argc, char** argv)
 
   double velocity_scale_factor_save_duration; // [sec]
 
-  nh.getParam("twist_topic",subscribe_twist_topic_name);
-  nh.getParam("imu_topic" , subscribe_imu_topic_name);
-  nh.getParam("rtklib_nav_topic",subscribe_rtklib_nav_topic_name);
-  nh.getParam("rmc_topic",subscribe_rmc_topic_name);
-  nh.getParam("velocity_scale_factor/estimated_number_min",_velocity_scale_factor_parameter.estimated_number_min);
-  nh.getParam("velocity_scale_factor/estimated_number_max",_velocity_scale_factor_parameter.estimated_number_max);
-  nh.getParam("velocity_scale_factor/estimated_velocity_threshold",_velocity_scale_factor_parameter.estimated_velocity_threshold);
-  nh.getParam("velocity_scale_factor/estimated_coefficient",_velocity_scale_factor_parameter.estimated_coefficient);
-  nh.getParam("use_gnss_mode",_use_gnss_mode);
+  double imu_frequency;
+  double esitimated_time_min, esitimated_time_max;
+
+  nh.getParam("twist_topic", subscribe_twist_topic_name);
+  nh.getParam("imu_topic", subscribe_imu_topic_name);
+  nh.getParam("rtklib_nav_topic", subscribe_rtklib_nav_topic_name);
+  nh.getParam("rmc_topic", subscribe_rmc_topic_name);
+  nh.getParam("imu/frequency", imu_frequency);
+  nh.getParam("velocity_scale_factor/estimated_time_min", esitimated_time_min);
+  nh.getParam("velocity_scale_factor/estimated_time_max", esitimated_time_max);
+  nh.getParam("velocity_scale_factor/estimated_velocity_threshold", _velocity_scale_factor_parameter.estimated_velocity_threshold);
+  nh.getParam("velocity_scale_factor/estimated_coefficient", _velocity_scale_factor_parameter.estimated_coefficient);
+  nh.getParam("use_gnss_mode", _use_gnss_mode);
   nh.getParam("velocity_scale_factor_save_str", _velocity_scale_factor_save_str);
   nh.getParam("velocity_scale_factor/save_velocity_scale_factor", _velocity_scale_factor_parameter.save_velocity_scale_factor);
   nh.getParam("velocity_scale_factor/velocity_scale_factor_save_duration", velocity_scale_factor_save_duration);
@@ -179,8 +183,9 @@ int main(int argc, char** argv)
   std::cout<< "subscribe_imu_topic_name " << subscribe_imu_topic_name << std::endl;
   std::cout<< "subscribe_rtklib_nav_topic_name " << subscribe_rtklib_nav_topic_name << std::endl;
   std::cout<< "subscribe_rmc_topic_name " << subscribe_rmc_topic_name << std::endl;
-  std::cout<< "estimated_number_min " << _velocity_scale_factor_parameter.estimated_number_min << std::endl;
-  std::cout<< "estimated_number_max " << _velocity_scale_factor_parameter.estimated_number_max << std::endl;
+  std::cout<< "esitimated_time_min " << esitimated_time_min << std::endl;
+  std::cout<< "esitimated_time_max " << esitimated_time_max << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
   std::cout<< "estimated_velocity_threshold " << _velocity_scale_factor_parameter.estimated_velocity_threshold << std::endl;
   std::cout<< "estimated_coefficient " << _velocity_scale_factor_parameter.estimated_coefficient << std::endl;
   std::cout<< "use_gnss_mode " << _use_gnss_mode << std::endl;
@@ -199,6 +204,9 @@ int main(int argc, char** argv)
     timer = nh.createTimer(ros::Duration(velocity_scale_factor_save_duration), timer_callback);
     load_velocity_scale_factor(_velocity_scale_factor_save_str);
   }
+
+  _velocity_scale_factor_parameter.estimated_number_min = imu_frequency * esitimated_time_min;
+  _velocity_scale_factor_parameter.estimated_number_max = imu_frequency * esitimated_time_max;
 
   ros::spin();
 

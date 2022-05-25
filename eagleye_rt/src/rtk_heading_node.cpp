@@ -103,24 +103,28 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   std::string subscribe_gga_topic_name = "/navsat/gga";
+  double imu_frequency;
+  double esitimated_time_min, esitimated_time_max;
 
-  nh.getParam("gga_topic",subscribe_gga_topic_name);
-  nh.getParam("rtk_heading/estimated_distance",_heading_parameter.estimated_distance);
-  nh.getParam("rtk_heading/estimated_heading_buffer_min",_heading_parameter.estimated_heading_buffer_min);
-  nh.getParam("rtk_heading/estimated_number_min",_heading_parameter.estimated_number_min);
-  nh.getParam("rtk_heading/estimated_number_max",_heading_parameter.estimated_number_max);
-  nh.getParam("rtk_heading/estimated_gnss_coefficient",_heading_parameter.estimated_gnss_coefficient);
-  nh.getParam("rtk_heading/estimated_heading_coefficient",_heading_parameter.estimated_heading_coefficient);
-  nh.getParam("rtk_heading/outlier_threshold",_heading_parameter.outlier_threshold);
-  nh.getParam("rtk_heading/estimated_velocity_threshold",_heading_parameter.estimated_velocity_threshold);
-  nh.getParam("rtk_heading/stop_judgment_velocity_threshold",_heading_parameter.stop_judgment_velocity_threshold);
-  nh.getParam("rtk_heading/estimated_yawrate_threshold",_heading_parameter.estimated_yawrate_threshold);
+  nh.getParam("gga_topic", subscribe_gga_topic_name);
+  nh.getParam("imu/frequency", imu_frequency);
+  nh.getParam("rtk_heading/estimated_distance", _heading_parameter.estimated_distance);
+  nh.getParam("rtk_heading/estimated_heading_buffer_min", _heading_parameter.estimated_heading_buffer_min);
+  nh.getParam("rtk_heading/estimated_time_min", esitimated_time_min);
+  nh.getParam("rtk_heading/estimated_time_max", esitimated_time_max);
+  nh.getParam("rtk_heading/estimated_gnss_coefficient", _heading_parameter.estimated_gnss_coefficient);
+  nh.getParam("rtk_heading/estimated_heading_coefficient", _heading_parameter.estimated_heading_coefficient);
+  nh.getParam("rtk_heading/outlier_threshold", _heading_parameter.outlier_threshold);
+  nh.getParam("rtk_heading/estimated_velocity_threshold", _heading_parameter.estimated_velocity_threshold);
+  nh.getParam("rtk_heading/stop_judgment_velocity_threshold", _heading_parameter.stop_judgment_velocity_threshold);
+  nh.getParam("rtk_heading/estimated_yawrate_threshold", _heading_parameter.estimated_yawrate_threshold);
 
   std::cout<< "subscribe_gga_topic_name " << subscribe_gga_topic_name << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
   std::cout<< "estimated_distance " << _heading_parameter.estimated_distance << std::endl;
   std::cout<< "estimated_heading_buffer_min " << _heading_parameter.estimated_heading_buffer_min << std::endl;
-  std::cout<< "estimated_number_min " << _heading_parameter.estimated_number_min << std::endl;
-  std::cout<< "estimated_number_max " << _heading_parameter.estimated_number_max << std::endl;
+  std::cout<< "estimated_time_min " << esitimated_time_min << std::endl;
+  std::cout<< "estimated_time_max " << esitimated_time_max << std::endl;
   std::cout<< "estimated_gnss_coefficient " << _heading_parameter.estimated_gnss_coefficient << std::endl;
   std::cout<< "estimated_heading_coefficient " << _heading_parameter.estimated_heading_coefficient << std::endl;
   std::cout<< "outlier_threshold " << _heading_parameter.outlier_threshold << std::endl;
@@ -174,6 +178,9 @@ int main(int argc, char** argv)
   ros::Subscriber sub8 = nh.subscribe("distance", 1000, distance_callback, ros::TransportHints().tcpNoDelay());
 
   _pub = nh.advertise<eagleye_msgs::Heading>(publish_topic_name, 1000);
+
+  _heading_parameter.estimated_number_min = imu_frequency * esitimated_time_min;
+  _heading_parameter.estimated_number_max = imu_frequency * esitimated_time_max;
 
   ros::spin();
 

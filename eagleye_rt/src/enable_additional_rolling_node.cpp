@@ -95,20 +95,24 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   std::string subscribe_localization_pose_topic_name;
+  double imu_frequency;
+  double imu_buffer_time;
 
   nh.getParam("localization_pose_topic", subscribe_localization_pose_topic_name);
+  nh.getParam("imu/frequency", imu_frequency);
   nh.getParam("enable_additional_rolling/matching_update_distance", _rolling_parameter.matching_update_distance);
   nh.getParam("enable_additional_rolling/stop_judgment_velocity_threshold", _rolling_parameter.stop_judgment_velocity_threshold);
   nh.getParam("enable_additional_rolling/rolling_buffer_num", _rolling_parameter.rolling_buffer_num);
   nh.getParam("enable_additional_rolling/link_Time_stamp_parameter", _rolling_parameter.link_Time_stamp_parameter);
-  nh.getParam("enable_additional_rolling/imu_buffer_num", _rolling_parameter.imu_buffer_num);
+  nh.getParam("enable_additional_rolling/imu_buffer_time", imu_buffer_time);
 
   std::cout<< "subscribe_localization_pose_topic_name: " << subscribe_localization_pose_topic_name << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
   std::cout<< "matching_update_distance: " << _rolling_parameter.matching_update_distance << std::endl;
   std::cout<< "stop_judgment_velocity_threshold: " << _rolling_parameter.stop_judgment_velocity_threshold << std::endl;
   std::cout<< "rolling_buffer_num: " << _rolling_parameter.rolling_buffer_num << std::endl;
   std::cout<< "link_Time_stamp_parameter: " << _rolling_parameter.link_Time_stamp_parameter << std::endl;
-  std::cout<< "imu_buffer_num: " << _rolling_parameter.imu_buffer_num << std::endl;
+  std::cout<< "imu_buffer_time: " << imu_buffer_time << std::endl;
 
   ros::Subscriber sub1 = nh.subscribe("velocity_scale_factor", 1000, velocity_scale_factor_callback , ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub2 = nh.subscribe("yawrate_offset_2nd", 1000, yawrate_offset_2nd_callback , ros::TransportHints().tcpNoDelay());
@@ -120,6 +124,8 @@ int main(int argc, char** argv)
 
   _pub1 = nh.advertise<eagleye_msgs::AccYOffset>("acc_y_offset_additional_rolling", 1000);
   _pub2 = nh.advertise<eagleye_msgs::Rolling>("enable_additional_rolling", 1000);
+
+  _rolling_parameter.imu_buffer_num = imu_frequency * imu_buffer_time;
  
   ros::spin();
 

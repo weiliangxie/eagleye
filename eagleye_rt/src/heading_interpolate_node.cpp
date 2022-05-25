@@ -84,11 +84,16 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "heading_interpolate");
   ros::NodeHandle nh;
+  
+  double imu_frequency;
+  double time_buffer_max;
 
+  nh.getParam("imu/frequency", imu_frequency);
   nh.getParam("heading_interpolate/stop_judgment_velocity_threshold", _heading_interpolate_parameter.stop_judgment_velocity_threshold);
-  nh.getParam("heading_interpolate/number_buffer_max", _heading_interpolate_parameter.number_buffer_max);
+  nh.getParam("heading_interpolate/time_buffer_max", time_buffer_max);
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
   std::cout<< "stop_judgment_velocity_threshold: " << _heading_interpolate_parameter.stop_judgment_velocity_threshold << std::endl;
-  std::cout<< "number_buffer_max: " << _heading_interpolate_parameter.number_buffer_max << std::endl;
+  std::cout<< "time_buffer_max: " << time_buffer_max << std::endl;
 
   std::string publish_topic_name = "/publish_topic_name/invalid";
   std::string subscribe_topic_name_1 = "/subscribe_topic_name/invalid_1";
@@ -133,6 +138,8 @@ int main(int argc, char** argv)
   ros::Subscriber sub5 = nh.subscribe(subscribe_topic_name_2, 1000, heading_callback, ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub6 = nh.subscribe("slip_angle", 1000, slip_angle_callback, ros::TransportHints().tcpNoDelay());
   _pub = nh.advertise<eagleye_msgs::Heading>(publish_topic_name, 1000);
+
+  _heading_interpolate_parameter.number_buffer_max = imu_frequency * time_buffer_max;
 
   ros::spin();
 

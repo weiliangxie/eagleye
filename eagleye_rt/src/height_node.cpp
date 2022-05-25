@@ -96,9 +96,12 @@ int main(int argc, char** argv)
 
   std::string subscribe_gga_topic_name = "/navsat/gga";
   std::string subscribe_imu_topic_name = "/imu/data_raw";
+  double imu_frequency;
+  double average_time;
 
   nh.getParam("gga_topic", subscribe_gga_topic_name);
   nh.getParam("imu_topic", subscribe_imu_topic_name);
+  nh.getParam("imu/frequency", imu_frequency);
   nh.getParam("height/estimated_distance", _height_parameter.estimated_distance);
   nh.getParam("height/estimated_distance_max", _height_parameter.estimated_distance_max);
   nh.getParam("height/separation_distance", _height_parameter.separation_distance);
@@ -106,10 +109,11 @@ int main(int argc, char** argv)
   nh.getParam("height/estimated_velocity_coefficient", _height_parameter.estimated_velocity_coefficient);
   nh.getParam("height/estimated_height_coefficient", _height_parameter.estimated_height_coefficient);
   nh.getParam("height/outlier_threshold", _height_parameter.outlier_threshold);
-  nh.getParam("height/average_num", _height_parameter.average_num);
+  nh.getParam("height/average_time", average_time);
 
   std::cout<< "subscribe_gga_topic_name " << subscribe_gga_topic_name << std::endl;
   std::cout<< "subscribe_imu_topic_name " << subscribe_imu_topic_name << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
   std::cout<< "estimated_distance " << _height_parameter.estimated_distance << std::endl;
   std::cout<< "estimated_distance_max " << _height_parameter.estimated_distance_max << std::endl;
   std::cout<< "separation_distance " << _height_parameter.separation_distance << std::endl;
@@ -117,7 +121,7 @@ int main(int argc, char** argv)
   std::cout<< "estimated_velocity_coefficient " << _height_parameter.estimated_velocity_coefficient << std::endl;
   std::cout<< "estimated_height_coefficient " << _height_parameter.estimated_height_coefficient << std::endl;
   std::cout<< "outlier_threshold " << _height_parameter.outlier_threshold << std::endl;
-  std::cout<< "average_num " << _height_parameter.average_num << std::endl;
+  std::cout<< "average_time " << average_time << std::endl;
 
   ros::Subscriber sub1 = nh.subscribe("imu/data_tf_converted", 1000, imu_callback, ros::TransportHints().tcpNoDelay());
   ros::Subscriber sub2 = nh.subscribe(subscribe_gga_topic_name, 1000, gga_callback, ros::TransportHints().tcpNoDelay());
@@ -129,6 +133,8 @@ int main(int argc, char** argv)
   _pub3 = nh.advertise<eagleye_msgs::AccXOffset>("acc_x_offset", 1000);
   _pub4 = nh.advertise<eagleye_msgs::AccXScaleFactor>("acc_x_scale_factor", 1000);
   _pub5 = nh.advertise<nmea_msgs::Gpgga>("navsat/reliability_gga", 1000);
+
+  _height_parameter.average_num = imu_frequency * average_time;
 
   ros::spin();
 

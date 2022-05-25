@@ -100,12 +100,14 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   std::string subscribe_gga_topic_name = "/navsat/gga";
+  double imu_frequency;
+  double time_buffer_max;
 
   nh.getParam("gga_topic",subscribe_gga_topic_name);
-  nh.getParam("position_interpolate/number_buffer_max", _position_interpolate_parameter.number_buffer_max);
+  nh.getParam("position_interpolate/time_buffer_max", time_buffer_max);
   nh.getParam("position_interpolate/stop_judgment_velocity_threshold", _position_interpolate_parameter.stop_judgment_velocity_threshold);
   std::cout<< "subscribe_gga_topic_name " << subscribe_gga_topic_name << std::endl;
-  std::cout<< "number_buffer_max " << _position_interpolate_parameter.number_buffer_max << std::endl;
+  std::cout<< "time_buffer_max " << time_buffer_max << std::endl;
   std::cout<< "stop_judgment_velocity_threshold " << _position_interpolate_parameter.stop_judgment_velocity_threshold << std::endl;
 
   ros::Subscriber sub1 = nh.subscribe("enu_vel", 1000, enu_vel_callback, ros::TransportHints().tcpNoDelay());
@@ -115,6 +117,8 @@ int main(int argc, char** argv)
   ros::Subscriber sub5 = nh.subscribe(subscribe_gga_topic_name, 1000, gga_callback, ros::TransportHints().tcpNoDelay());
   _pub1 = nh.advertise<eagleye_msgs::Position>("enu_absolute_pos_interpolate", 1000);
   _pub2 = nh.advertise<sensor_msgs::NavSatFix>("fix", 1000);
+
+  _position_interpolate_parameter.number_buffer_max = imu_frequency * time_buffer_max;
 
   ros::spin();
 

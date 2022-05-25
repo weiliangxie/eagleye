@@ -122,23 +122,27 @@ int main(int argc, char** argv)
 
   std::string subscribe_rtklib_nav_topic_name = "/rtklib_nav";
   std::string subscribe_rmc_topic_name = "/mosaic/rmc";
+  double imu_frequency;
+  double esitimated_time_min, esitimated_time_max;
 
-  nh.getParam("rtklib_nav_topic",subscribe_rtklib_nav_topic_name);
-  nh.getParam("rmc_topic",subscribe_rmc_topic_name);
-  nh.getParam("heading/estimated_number_min",_heading_parameter.estimated_number_min);
-  nh.getParam("heading/estimated_number_max",_heading_parameter.estimated_number_max);
-  nh.getParam("heading/estimated_gnss_coefficient",_heading_parameter.estimated_gnss_coefficient);
-  nh.getParam("heading/estimated_heading_coefficient",_heading_parameter.estimated_heading_coefficient);
-  nh.getParam("heading/outlier_threshold",_heading_parameter.outlier_threshold);
-  nh.getParam("heading/estimated_velocity_threshold",_heading_parameter.estimated_velocity_threshold);
-  nh.getParam("heading/stop_judgment_velocity_threshold",_heading_parameter.stop_judgment_velocity_threshold);
-  nh.getParam("heading/estimated_yawrate_threshold",_heading_parameter.estimated_yawrate_threshold);
-  nh.getParam("use_gnss_mode",_use_gnss_mode);
+  nh.getParam("rtklib_nav_topic", subscribe_rtklib_nav_topic_name);
+  nh.getParam("rmc_topic" ,subscribe_rmc_topic_name);
+  nh.getParam("imu/frequency", imu_frequency);
+  nh.getParam("heading/estimated_time_min", esitimated_time_min);
+  nh.getParam("heading/estimated_time_max", esitimated_time_max);
+  nh.getParam("heading/estimated_gnss_coefficient", _heading_parameter.estimated_gnss_coefficient);
+  nh.getParam("heading/estimated_heading_coefficient", _heading_parameter.estimated_heading_coefficient);
+  nh.getParam("heading/outlier_threshold", _heading_parameter.outlier_threshold);
+  nh.getParam("heading/estimated_velocity_threshold", _heading_parameter.estimated_velocity_threshold);
+  nh.getParam("heading/stop_judgment_velocity_threshold", _heading_parameter.stop_judgment_velocity_threshold);
+  nh.getParam("heading/estimated_yawrate_threshold", _heading_parameter.estimated_yawrate_threshold);
+  nh.getParam("use_gnss_mode", _use_gnss_mode);
 
   std::cout<< "subscribe_rtklib_nav_topic_name " << subscribe_rtklib_nav_topic_name << std::endl;
   std::cout<< "subscribe_rmc_topic_name " << subscribe_rmc_topic_name << std::endl;
-  std::cout<< "estimated_number_min " << _heading_parameter.estimated_number_min << std::endl;
-  std::cout<< "estimated_number_max " << _heading_parameter.estimated_number_max << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
+  std::cout<< "esitimated_time_min " << esitimated_time_min << std::endl;
+  std::cout<< "esitimated_time_max " << esitimated_time_max << std::endl;
   std::cout<< "estimated_gnss_coefficient " << _heading_parameter.estimated_gnss_coefficient << std::endl;
   std::cout<< "estimated_heading_coefficient " << _heading_parameter.estimated_heading_coefficient << std::endl;
   std::cout<< "outlier_threshold " << _heading_parameter.outlier_threshold << std::endl;
@@ -193,6 +197,9 @@ int main(int argc, char** argv)
   ros::Subscriber sub8 = nh.subscribe(subscribe_topic_name2, 1000, heading_interpolate_callback, ros::TransportHints().tcpNoDelay());
 
   _pub = nh.advertise<eagleye_msgs::Heading>(publish_topic_name, 1000);
+
+  _heading_parameter.estimated_number_min = imu_frequency * esitimated_time_min;
+  _heading_parameter.estimated_number_max = imu_frequency * esitimated_time_max;
 
   ros::spin();
 
