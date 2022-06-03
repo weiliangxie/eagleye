@@ -89,6 +89,11 @@ void yawrate_offset_stop_estimate(const geometry_msgs::TwistStamped velocity, co
       tmp += yawrate_offset_stop_status->yawrate_buffer[i];
     }
     yawrate_offset_stop->yawrate_offset = -1 * tmp / yawrate_offset_stop_parameter.estimated_number;
+
+    if(!std::isfinite(yawrate_offset_stop->yawrate_offset) || std::fabs(yawrate_offset_stop->yawrate_offset) > 0.005){
+      yawrate_offset_stop->yawrate_offset = yawrate_offset_stop_status->yawrate_offset_stop_last;
+    }
+
     yawrate_offset_stop->status.enabled_status = true;
     yawrate_offset_stop->status.estimate_status = true;
     yawrate_offset_stop_status->estimate_start_status = true;

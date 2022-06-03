@@ -179,6 +179,11 @@ void yawrate_offset_estimate(const eagleye_msgs::VelocityScaleFactor velocity_sc
         sum_x2 += std::pow(time_buffer2[i], 2);
       }
       yawrate_offset->yawrate_offset = -1 * (index_length * sum_xy - sum_x * sum_y) / (index_length * sum_x2 - pow(sum_x, 2));
+
+      if(!std::isfinite(yawrate_offset->yawrate_offset) || std::fabs(yawrate_offset->yawrate_offset) > 0.005){
+        yawrate_offset->yawrate_offset = yawrate_offset_stop.yawrate_offset;
+      }
+
       yawrate_offset->status.enabled_status = true;
       yawrate_offset->status.estimate_status = true;
     }

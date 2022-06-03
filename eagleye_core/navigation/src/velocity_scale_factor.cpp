@@ -157,6 +157,11 @@ void velocity_scale_factor_estimate(const rtklib_msgs::RtklibNav rtklib_nav, con
     raw_velocity_scale_factor = size % 2 ? t[size / 2] : (t[(size / 2) - 1] + t[size / 2]) / 2;
     delete[] t;
     velocity_scale_factor->scale_factor = raw_velocity_scale_factor;
+    
+    if(!std::isfinite(velocity_scale_factor->scale_factor) || velocity_scale_factor->scale_factor < 0.9 || velocity_scale_factor->scale_factor > 1.1){
+      velocity_scale_factor->scale_factor = velocity_scale_factor_status->velocity_scale_factor_last;
+    }
+    
   }
   else if (velocity_scale_factor->status.estimate_status == false)
   {
@@ -167,6 +172,7 @@ void velocity_scale_factor_estimate(const rtklib_msgs::RtklibNav rtklib_nav, con
   if (velocity_scale_factor_status->estimate_start_status == true)
   {
     velocity_scale_factor->status.enabled_status = true;
+    std::cout << "\033[31m velocity scale factor invalid number \033[m" << std::endl;
     velocity_scale_factor->correction_velocity.linear.x = velocity.twist.linear.x * velocity_scale_factor->scale_factor;
   }
   else
