@@ -172,7 +172,6 @@ void velocity_scale_factor_estimate(const rtklib_msgs::RtklibNav rtklib_nav, con
   if (velocity_scale_factor_status->estimate_start_status == true)
   {
     velocity_scale_factor->status.enabled_status = true;
-    std::cout << "\033[31m velocity scale factor invalid number \033[m" << std::endl;
     velocity_scale_factor->correction_velocity.linear.x = velocity.twist.linear.x * velocity_scale_factor->scale_factor;
   }
   else
