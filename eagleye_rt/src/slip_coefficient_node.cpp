@@ -102,18 +102,22 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
 
   std::string subscribe_rtklib_nav_topic_name = "/rtklib_nav";
+  double imu_frequency;
+  double esitimated_time_min, esitimated_time_max;
 
   nh.getParam("rtklib_nav_topic", subscribe_rtklib_nav_topic_name);
-  nh.getParam("slip_coefficient/estimated_number_min", _slip_coefficient_parameter.estimated_number_min);
-  nh.getParam("slip_coefficient/estimated_number_max", _slip_coefficient_parameter.estimated_number_max);
+  nh.getParam("imu/frequency", imu_frequency);
+  nh.getParam("slip_coefficient/estimated_time_min", esitimated_time_min);
+  nh.getParam("slip_coefficient/estimated_time_max", esitimated_time_max);
   nh.getParam("slip_coefficient/estimated_velocity_threshold", _slip_coefficient_parameter.estimated_velocity_threshold);
   nh.getParam("slip_coefficient/estimated_yawrate_threshold", _slip_coefficient_parameter.estimated_yawrate_threshold);
   nh.getParam("slip_coefficient/lever_arm", _slip_coefficient_parameter.lever_arm);
   nh.getParam("slip_coefficient/stop_judgment_velocity_threshold", _slip_coefficient_parameter.stop_judgment_velocity_threshold);
 
   std::cout<< "subscribe_rtklib_nav_topic_name " << subscribe_rtklib_nav_topic_name << std::endl;
-  std::cout<< "estimated_number_min " << _slip_coefficient_parameter.estimated_number_min << std::endl;
-  std::cout<< "estimated_number_max " << _slip_coefficient_parameter.estimated_number_max << std::endl;
+  std::cout<< "imu_frequency: " << imu_frequency << std::endl;
+  std::cout<< "estimated_time_min " << esitimated_time_min << std::endl;
+  std::cout<< "estimated_time_max " << esitimated_time_max << std::endl;
   std::cout<< "estimated_velocity_threshold " << _slip_coefficient_parameter.estimated_velocity_threshold << std::endl;
   std::cout<< "estimated_yawrate_threshold " << _slip_coefficient_parameter.estimated_yawrate_threshold << std::endl;
   std::cout<< "lever_arm " << _slip_coefficient_parameter.lever_arm << std::endl;
@@ -125,6 +129,9 @@ int main(int argc, char** argv)
   ros::Subscriber sub4 = nh.subscribe("yawrate_offset_stop", 1000, yawrate_offset_stop_callback);
   ros::Subscriber sub5 = nh.subscribe("yawrate_offset_2nd", 1000, yawrate_offset_2nd_callback);
   ros::Subscriber sub6 = nh.subscribe("heading_interpolate_3rd", 1000, heading_interpolate_3rd_callback);
+
+  _slip_coefficient_parameter.estimated_number_min = imu_frequency * esitimated_time_min;
+  _slip_coefficient_parameter.estimated_number_max = imu_frequency * esitimated_time_max;
 
   ros::spin();
 
